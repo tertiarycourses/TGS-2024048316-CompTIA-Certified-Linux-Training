@@ -24,3 +24,12 @@ venv/
 # WSQ assessment materials (confidential — never pushed)
 /assessment/
 /assessment\ /
+
+# Assessment BUILDERS embed the exam questions and model answers — confidential,
+# never pushed (the generic toolchain lives in tertiarycourses/wsqskills)
+.claude/skills/wsq-assessment/build_assessment.py
+.claude/skills/wsq-assessment/build_wsq_assessment.py
+
+# Skill reference IMPLEMENTATIONS are toolchain code, not derived-from source material
+!.claude/skills/**/reference/
+!.claude/skills/**/reference/**
