@@ -14,14 +14,23 @@ Component helpers ported from the wsq-slides reference pipeline.
 """
 import os, sys, json
 from pptx import Presentation
-from pptx.util import Inches, Pt
+from pptx.util import Inches as _EmuInches, Pt as _EmuPt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(_HERE, os.pardir, "wsq-learner-guide"))
 from course_content import (COURSE, DOMAINS, LEARNING_OUTCOMES, DOMAIN_CONCEPTS,
-                            DOMAIN_OUTCOMES, domain_labs, COURSEWARE, ASSETS)
+                            DOMAIN_OUTCOMES, domain_labs, COURSEWARE, ASSETS,
+                            REFERENCE_DECK, REFERENCE_CHAPTERS, DOMAIN_CHAPTERS,
+                            REFERENCE_DROP)
+
+# The house components are authored on a 13.333 x 7.5 in canvas; the merged deck
+# keeps the legacy deck's 10 x 5.625 in canvas (same 16:9), so every house
+# coordinate and font size is scaled uniformly by 0.75.
+SCALE = 0.75
+def Inches(v): return _EmuInches(v * SCALE)
+def Pt(v): return _EmuPt(v * SCALE)
 
 # ---------------- palette ----------------
 BLUE=RGBColor(0x1F,0x6F,0xEB); TEAL=RGBColor(0x10,0xB9,0x81); AMBER=RGBColor(0xF5,0x9E,0x0B)
@@ -30,14 +39,55 @@ WHITE=RGBColor(0xFF,0xFF,0xFF); LINE=RGBColor(0xE2,0xE8,0xF0); VIOLET=RGBColor(0
 RED=RGBColor(0xC8,0x10,0x2E)
 PALETTE=[BLUE,TEAL,VIOLET,AMBER]
 
-prs=Presentation(); prs.slide_width=Inches(13.333); prs.slide_height=Inches(7.5)
+# Open the LEGACY v3 deck as the base package: all 22 chapters of teaching
+# slides (text + graphics) stay in the file untouched; the house slides are
+# appended and everything is re-sequenced into exam-domain order at the end.
+prs=Presentation(REFERENCE_DECK)
 SW,SH=prs.slide_width,prs.slide_height
-BLANK=prs.slide_layouts[6]
+BLANK=None
+for _m in prs.slide_masters:
+    for _l in _m.slide_layouts:
+        if _l.name.strip().upper()=="BLANK": BLANK=_l; break
+    if BLANK is not None: break
+assert BLANK is not None, "no BLANK layout found in the reference deck"
+
+# The legacy masters/layouts carry a footer with a WRONG UEN ("20120096W");
+# correct it everywhere, and strip the legacy footer entirely from the BLANK
+# layout so the house slides (which draw their own footer) don't inherit it.
+_BAD_UEN, _GOOD_UEN = "20120096W", "201200696W"
+def _fix_footer(container, strip=False):
+    for sh in list(container.shapes):
+        if not sh.has_text_frame:
+            continue
+        t = sh.text_frame.text
+        if _BAD_UEN in t or "This material belongs to" in t:
+            if strip:
+                sh._element.getparent().remove(sh._element)
+                continue
+            for p in sh.text_frame.paragraphs:
+                for r in p.runs:
+                    if _BAD_UEN in r.text:
+                        r.text = r.text.replace(_BAD_UEN, _GOOD_UEN)
+for _m in prs.slide_masters:
+    _fix_footer(_m)
+    for _l in _m.slide_layouts:
+        _fix_footer(_l, strip=(_l is BLANK))
+for _s in prs.slides:
+    _fix_footer(_s)
+# House slides draw ALL their own furniture — hide the master's shapes (incl. its
+# footer text box) on the BLANK layout so nothing phantom leaks into their text layer.
+BLANK._element.set("showMasterSp", "0")
 import math
 
-SLIDE_MAP={"labs":{}, "domains":{}, "sections":{}}
+SLIDE_MAP={"labs":{}, "domains":{}, "sections":{}, "chapters":{}}
 
-def slide(): return prs.slides.add_slide(BLANK)
+OLD_IDS=list(prs.slides._sldIdLst)   # the legacy slides, in their original order
+ORDER=[]                             # final slide sequence (sldId elements)
+
+def slide():
+    s=prs.slides.add_slide(BLANK)
+    ORDER.append(prs.slides._sldIdLst[-1])
+    return s
 def rect(s,x,y,w,h,color,line=None):
     sp=s.shapes.add_shape(1,x,y,w,h); sp.fill.solid(); sp.fill.fore_color.rgb=color
     if line is None: sp.line.fill.background()
@@ -76,6 +126,17 @@ def footer(s):
     txt(s,Inches(12.4),Inches(7.05),Inches(0.6),Inches(0.35),
         [[(str(PAGE["n"]),9,GREY,False)]],align=PP_ALIGN.RIGHT)
     return PAGE["n"]
+_CH_BY_NUM={c[0]:c for c in REFERENCE_CHAPTERS}
+def insert_chapters(dnum):
+    """Splice this domain's legacy chapters (all slides + graphics, minus the
+    dropped admin/lab-pointer slides) into the deck at the current position."""
+    for ch in DOMAIN_CHAPTERS[dnum]:
+        _,a,b,_,title=_CH_BY_NUM[ch]
+        SLIDE_MAP["chapters"][str(ch)]=PAGE["n"]+1
+        for i in range(a,b+1):
+            if i in REFERENCE_DROP: continue
+            ORDER.append(OLD_IDS[i-1]); PAGE["n"]+=1
+
 def head(s,title,kicker=None,kcolor=BLUE):
     rect(s,0,0,SW,SH,WHITE); rect(s,0,0,Inches(0.28),Inches(1.55),kcolor)
     if kicker: txt(s,Inches(0.85),Inches(0.5),Inches(11.6),Inches(0.4),[[(kicker,14,kcolor,True)]])
@@ -99,7 +160,7 @@ def cover():
     txt(s,Inches(0.9),Inches(5.15),Inches(12),Inches(1.4),
         [[(f"WSQ Course Code: {COURSE['code']}  ·  CompTIA Linux+ {COURSE['exam']}",15,GREY,False)],
          [(f"Conducted by {COURSE['org']}  ·  UEN {COURSE['uen']}",14,GREY,False)]],space=6)
-    txt(s,Inches(0.9),Inches(6.5),Inches(12),Inches(0.4),[[(f"Trainer: {COURSE['trainer']}  ·  Version {COURSE['version']}",12,GREY,False)]])
+    txt(s,Inches(0.9),Inches(6.5),Inches(12),Inches(0.4),[[(f"Trainer: {COURSE['trainer']}  ·  Version {COURSE['version']}  ·  {COURSE['version_date']}",12,GREY,False)]])
     txt(s,Inches(0.9),Inches(6.85),Inches(12),Inches(0.34),[[("© 2026 Tertiary Infotech Academy Pte Ltd. All rights reserved.  ·  www.tertiarycourses.com.sg",10,GREY,False)]])
     PAGE["n"]=1   # the cover is physical slide 1, so subsequent footers/slide_map = actual slide index
 
@@ -232,14 +293,14 @@ def labs_access(repo, kc):
         [[("All 30 hands-on labs are on the course GitHub repository — access them by cloning or downloading:",16,INK,True)]])
     lb=s.shapes.add_textbox(Inches(1.15),Inches(2.75),Inches(11.1),Inches(0.7)); lf=lb.text_frame; lf.word_wrap=True
     lp=lf.paragraphs[0]
-    link_run(lp, repo, repo, size=19, color=BLUE, font="Consolas")   # clickable repo link
+    link_run(lp, repo, repo, size=17, color=BLUE, font="Consolas")   # clickable repo link
     # Two how-to cards
     cardw=Inches(5.66); y=Inches(4.0); ch=Inches(2.15)
     for i,(col,ttl,lines) in enumerate([
         (BLUE,"Option A — Clone with Git",
-         [f"git clone {repo}.git","cd TGS-2024048316-LinuxPlus/labs","Open any lab-XX-*.md and follow the steps"]),
+         [f"git clone {repo}.git","cd "+repo.rsplit('/',1)[-1]+"/labs","Each lab has its own folder — open its README.md"]),
         (TEAL,"Option B — Download the ZIP",
-         ["On GitHub click the green Code button","Choose Download ZIP and unzip it","Open the labs/ folder"])]):
+         ["On GitHub click the green Code button","Choose Download ZIP and unzip it","Open the labs/ folder — one folder per lab"])]):
         x=Inches(0.85)+i*(cardw+Inches(0.31))
         rect(s,x,y,cardw,ch,LIGHT); rect(s,x,y,cardw,Inches(0.1),col)
         txt(s,x+Inches(0.25),y+Inches(0.2),cardw-Inches(0.5),Inches(0.4),[[(ttl,15,col,True)]])
@@ -277,7 +338,7 @@ cover()
 
 # ---------------- ADMIN ----------------
 section("COURSE ADMINISTRATION","Welcome & Housekeeping","")
-content("Digital Attendance (Mandatory)",ATTEND,kicker="TRAQOM · SSG DIGITAL ATTENDANCE",kcolor=RED)
+tile_grid("Digital Attendance (Mandatory)",ATTEND,kicker="TRAQOM · SSG DIGITAL ATTENDANCE",cols=1,size=13,accent=RED)
 trainer_slide("YOUR TRAINER · GENERAL","Your Trainer","General Trainer template —\nto be completed by the trainer",
  [("Name",""),("Title / Designation",""),("Qualifications",""),
   ("Areas of expertise",""),("Training & industry experience",""),("Contact","")],
@@ -297,34 +358,67 @@ tile_grid("Ground Rules",[
  "Mutual respect: agree to disagree.","Do every lab yourself on Killercoda.",
  "Be punctual; return from breaks on time.","75% attendance is required."],
  kicker="HOUSEKEEPING",cols=2,size=15,accent=RED)
-content("LMS / TMS",[
- "Access your course materials, attendance and assessment on the LMS/TMS portal.",
- f"Portal: {COURSE['lms']}",
- "Download the slides and Learner Guide for reference during the open-book assessment."],kicker="COURSE PORTAL")
+# Download Course Material — VISUAL slide: portal screenshot + numbered steps
+def download_material():
+    s=head(slide(),"Download Course Material",kicker="LMS / TMS · COURSE PORTAL",kcolor=BLUE)
+    shot=_logo("lms-tms-portal.png")
+    if shot:
+        pic=s.shapes.add_picture(shot,Inches(6.6),Inches(2.0),width=Inches(6.2))
+        pic.line.color.rgb=LINE; pic.line.width=_EmuPt(1)
+    steps=[("1","Go to the portal","lms-tms.tertiaryinfotech.com"),
+           ("2","Log in","Use your registered email — Send OTP (or password)."),
+           ("3","Open your course","CompTIA Certified Linux+ Training (TGS-2024048316)."),
+           ("4","Download the materials","Slides, Learner Guide and Lesson Plan — allowed in the open-book assessment.")]
+    y=Inches(2.0); hstep=Inches(1.12); bd=Inches(0.5)
+    for i,(nn,t1,t2) in enumerate(steps):
+        yy=int(y+hstep*i)
+        rect(s,Inches(0.85),yy,Inches(5.5),int(hstep-Inches(0.14)),LIGHT)
+        rect(s,Inches(0.85),yy,Inches(0.1),int(hstep-Inches(0.14)),PALETTE[i%len(PALETTE)])
+        oval(s,Inches(1.05),int(yy+(hstep-Inches(0.14))/2-bd/2),bd,bd,PALETTE[i%len(PALETTE)])
+        txt(s,Inches(1.05),int(yy+(hstep-Inches(0.14))/2-bd/2),bd,bd,[[(nn,15,WHITE,True)]],align=PP_ALIGN.CENTER,anchor=MSO_ANCHOR.MIDDLE)
+        txt(s,Inches(1.75),yy,Inches(4.5),int(hstep-Inches(0.14)),
+            [[(t1,14,INK,True)],[(t2,11,GREY,False)]],anchor=MSO_ANCHOR.MIDDLE,space=2)
+    txt(s,Inches(6.6),Inches(6.35),Inches(6.2),Inches(0.4),
+        [[(f"Portal: {COURSE['lms']}",12,GREY,False)]],align=PP_ALIGN.CENTER)
+    footer(s)
+download_material()
 two_col("Lesson Plan — 2 Days, 8 hours/day",[
  ("Day 1 — System & User Management",0),
  ("Domain 1: System Management, 23% (Labs 1–7)",1),
  ("Domain 2: Services & User Management, 20% (Labs 8–13)",1),
- ("9:00am–6:00pm · 1-hour lunch · tea within",1)],
+ ("9:30am–6:30pm · 1-hour lunch · tea within",1)],
  [("Day 2 — Security, Automation & Troubleshooting",0),
  ("Domain 3: Security, 18% (Labs 14–19)",1),
  ("Domain 4: Automation & Scripting, 17% (Labs 20–24)",1),
  ("Domain 5: Troubleshooting, 22% (Labs 25–30)",1),
- ("Final Assessment (WA + PP) from 4:00pm",1)],
+ ("Final Assessment (WA + PP) from 4:30pm",1)],
  kicker="SCHEDULE",lhead="Day 1",rhead="Day 2")
 tile_grid("Learning Outcomes",[DOMAIN_OUTCOMES[d["num"]] for d in DOMAINS],
  kicker="WHAT YOU'LL ACHIEVE",cols=1,size=14,accent=BLUE)
-content("Briefing for Assessment",[
+# The XK0-006 exam blueprint, shown at the START of the deck — the whole course
+# is sequenced on these five domains.
+tile_grid("CompTIA Linux+ XK0-006 — Exam Domains",
+ [(f"Domain {d['num']} — {d['title']}",
+   f"{d['weight']}% of the exam  ·  Objectives {d['objs'][0][0]}–{d['objs'][-1][0]}  ·  Labs {d['labs'][0]}–{d['labs'][-1]}")
+  for d in DOMAINS],
+ kicker="EXAM BLUEPRINT · XK0-006 V8",cols=1,size=14,accent=RED)
+content("How This Deck Is Organised",[
+ "The course follows the five XK0-006 exam domains in blueprint order.",
+ "Each domain: exam objectives → the full teaching chapters (theory + examples) → hands-on labs → recap.",
+ "All teaching content and graphics from the course study chapters are included, re-ordered onto the exam domains.",
+ "Every lab maps to a specific exam objective — shown on each lab's overview slide."],
+ kicker="EXAM-ALIGNED STRUCTURE")
+tile_grid("Briefing for Assessment",[
  "Place phones and other materials under the table or on the floor.",
  "No photos or recording of assessment scripts.","No discussion during the assessment.",
  "Use a black/blue pen for hard-copy assessments.","No liquid paper / correction tape.",
- "Scripts are collected when time is up."],kicker="BEFORE THE ASSESSMENT",kcolor=RED)
-content("Assessment",[
- "Written Assessment (WA) — Short-Answer Questions (SAQ), 1 hour, open book — aligned to the slides.",
- "Practical Performance (PP) — hands-on Linux tasks, 1 hour, open book — aligned to the labs.",
- "Format: Open Book — slides, Learner Guide and approved materials only.",
- "A minimum of 75% attendance is required to be eligible for assessment and funding.",
- "An appeal process is available if required."],kicker="FINAL ASSESSMENT",kcolor=RED)
+ "Scripts are collected when time is up."],kicker="BEFORE THE ASSESSMENT",cols=2,size=12,accent=RED)
+tile_grid("Assessment",[
+ ("Written Assessment (WA)","Short-Answer Questions (SAQ) · 1 hour · open book — aligned to the slides."),
+ ("Practical Performance (PP)","Hands-on Linux tasks · 1 hour · open book — aligned to the labs."),
+ ("Open Book","Slides, Learner Guide and approved materials only."),
+ ("Eligibility","Minimum 75% attendance for assessment and funding · an appeal process is available.")],
+ kicker="FINAL ASSESSMENT",cols=1,size=13,accent=RED)
 flow_h("Assessment Flow",AFLOW,kicker="ON ASSESSMENT DAY")
 
 # ---------------- CORE LINUX CONCEPTS ----------------
@@ -361,6 +455,12 @@ for d in DOMAINS:
     section(f"DOMAIN {code}", d["title"], code, sub, record=d["num"])
     tile_grid(f"Key Concepts — {d['title']}", DOMAIN_CONCEPTS[d["num"]],
               kicker=f"EXAM WEIGHTING {d['weight']}%", cols=1, size=14, accent=CARD_COLORS[0])
+    tile_grid(f"Exam Objectives — {d['title']}",
+              [(f"Objective {o[0]}", o[1]) for o in d["objs"]],
+              kicker=f"DOMAIN {code} · BLUEPRINT", cols=1, size=13, accent=RED)
+    # Full legacy teaching chapters for this domain (all content + graphics,
+    # re-ordered from the v3 deck onto this exam domain).
+    insert_chapters(d["num"])
     acts=domain_labs(d["num"])
     third=(len(acts)+2)//3
     groups=[acts[i:i+third] for i in range(0,len(acts),third)][:3]
@@ -402,23 +502,56 @@ content("Preparing for the Linux+ XK0-006 Exam",[
  "Know which tool solves which problem — the exam is scenario-based (performance-based items).",
  "The exam has up to 90 questions (multiple-choice + performance-based) in 90 minutes.",
  "Book the exam through Pearson VUE from your CompTIA account."],kicker="NEXT STEPS")
-content("Practice Exam",[
- "Sharpen your exam readiness with the Tertiary Infotech CompTIA Linux+ practice exam.",
- "Practice exam: https://exams.tertiaryinfotech.com/practice-exams/comptia/comptia-linux-plus",
- "Attempt it under timed conditions and review every explanation.",
- "Revisit any lab whose domain you miss, then re-take the practice exam."],kicker="TEST YOURSELF")
+# CompTIA Linux+ exam registration — shown at the END of the deck (house request)
+flow_h("CompTIA Linux+ Exam Registration",[
+ "Create your CompTIA account at comptia.org",
+ "Buy the XK0-006 exam voucher (CompTIA Store / Tertiary Infotech)",
+ "Schedule at a Pearson VUE test centre or online proctored",
+ "Sit the exam — up to 90 questions in 90 minutes, pass 720/900",
+ "Claim your digital badge and certificate"],kicker="GET CERTIFIED · XK0-006")
+tile_grid("Exam Registration — Links & Details",[
+ ("Exam voucher",f"CompTIA Store: {COURSE['exam_voucher']}  (or through Tertiary Infotech)"),
+ ("Schedule the exam",f"Pearson VUE: {COURSE['exam_pearson']} — test centre or online proctored"),
+ ("Exam format","XK0-006 · up to 90 questions · 90 minutes · passing score 720 (scale 100–900)."),
+ ("Question types","Multiple-choice + performance-based items (live Linux tasks)."),
+ ("On exam day","Two forms of ID at a test centre · check the online-testing system requirements for remote.")],
+ kicker="REGISTER FOR THE EXAM",cols=1,size=12,accent=RED)
+tile_grid("Practice Exam",[
+ ("Test yourself","Sharpen your exam readiness with the Tertiary Infotech CompTIA Linux+ practice exam."),
+ ("Practice exam link",COURSE['practice_exam']),
+ ("Timed conditions","Attempt it under timed conditions and review every explanation."),
+ ("Close the gaps","Revisit any lab whose domain you miss, then re-take the practice exam.")],
+ kicker="TEST YOURSELF · EXAMS.TERTIARYINFOTECH.COM",cols=1,size=13,accent=TEAL)
 # Assessment admin repeated at the END (house rule)
-content("Assessment",[
- "Written Assessment (SAQ) — 1 hour.  Practical Performance (PP) — 1 hour.",
- "Open book: slides, Learner Guide and approved materials only.",
- "Remember to take the Assessment digital attendance (TRAQOM · SSG).",
- f"Submit your completed answers on the LMS at {COURSE['lms']}."],kicker="WRAP-UP",kcolor=RED)
+tile_grid("Assessment",[
+ ("Two instruments","Written Assessment (SAQ) — 1 hour · Practical Performance (PP) — 1 hour."),
+ ("Open book","Slides, Learner Guide and approved materials only."),
+ ("Digital attendance","Remember the Assessment digital attendance (TRAQOM · SSG)."),
+ ("Submission",f"Submit your completed answers on the LMS at {COURSE['lms']}")],
+ kicker="WRAP-UP",cols=1,size=13,accent=RED)
 flow_h("Assessment Flow",AFLOW,kicker="ON ASSESSMENT DAY")
-content("Digital Attendance (Mandatory)",ATTEND,kicker="TRAQOM · SSG DIGITAL ATTENDANCE",kcolor=RED)
+tile_grid("Digital Attendance (Mandatory)",ATTEND,kicker="TRAQOM · SSG DIGITAL ATTENDANCE",cols=1,size=13,accent=RED)
 big_statement("Thank You!","You are now ready to administer Linux — and to sit the CompTIA Linux+ XK0-006 exam.","ALL THE BEST",color=TEAL)
 
 SLIDE_MAP["total"]=PAGE["n"]
-OUT=os.path.join(COURSEWARE,"PPT-CompTIA-Linux-Plus-XK0-006.pptx")
+
+# ---------------- final re-sequencing ----------------
+# Drop the legacy slides that were not carried over (superseded admin block,
+# part dividers, retired lab pointers, old close), then move every slide into
+# its final exam-domain position. Re-appending an element that already has a
+# parent MOVES it, so iterating ORDER yields exactly the ORDER sequence.
+sldIdLst=prs.slides._sldIdLst
+_keep={id(el) for el in ORDER}
+for el in OLD_IDS:
+    if id(el) not in _keep:
+        prs.part.drop_rel(el.rId)
+        sldIdLst.remove(el)
+for el in ORDER:
+    sldIdLst.append(el)
+assert len(sldIdLst)==len(ORDER)==PAGE["n"], \
+    f"slide count mismatch: sldIdLst={len(sldIdLst)} ORDER={len(ORDER)} PAGE={PAGE['n']}"
+
+OUT=os.path.join(COURSEWARE,f"PPT-CompTIA-Linux-Plus-XK0-006-{COURSE['version']}.pptx")
 prs.save(OUT)
 with open(os.path.join(COURSEWARE,"slide_map.json"),"w") as fh:
     json.dump(SLIDE_MAP,fh,indent=2)

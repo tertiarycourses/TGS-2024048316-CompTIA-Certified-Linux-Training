@@ -7,7 +7,7 @@ so the trainer can run the class straight from the deck and the two never drift.
 
 Build the slide deck FIRST (build_slides.py) so slide_map.json exists.
 
-Two-day class: final assessment Day 2, 4:00–6:00 PM = 1 hr Written (SAQ) + 1 hr
+Two-day class: final assessment Day 2, 4:30–6:30 PM = 1 hr Written (SAQ) + 1 hr
 Practical Performance (PP), open book.
 """
 import os, sys, json
@@ -23,7 +23,7 @@ import prodoc
 from prodoc import BRAND, DARK, GREY
 from course_content import COURSE, DOMAINS, LEARNING_OUTCOMES, domain_labs, COURSEWARE, LABS_BY_NUM
 
-OUT = os.path.join(COURSEWARE, "LP-CompTIA-Linux-Plus-XK0-006.docx")
+OUT = os.path.join(COURSEWARE, f"LP-CompTIA-Linux-Plus-XK0-006-{COURSE['version']}.docx")
 
 # ---- slide map (HARD RULE 1) -------------------------------------------------
 _MAP_PATH = os.path.join(COURSEWARE, "slide_map.json")
@@ -36,10 +36,20 @@ TOTAL = SMAP["total"]
 
 # per-lab slide span: overview page .. (next lab overview page - 1); last lab .. total
 _ordered = sorted(LAB_PAGE.items(), key=lambda kv: kv[1])
+# a lab's span ends at the next anchor: the next lab OR the next domain divider,
+# so the last lab of a domain never swallows the next domain's chapter slides.
+_anchors = sorted(set(list(LAB_PAGE.values()) + list(DOM_PAGE.values()) + [TOTAL + 1]))
 LAB_SPAN = {}
-for i, (num, pg) in enumerate(_ordered):
-    end = (_ordered[i + 1][1] - 1) if i + 1 < len(_ordered) else TOTAL
-    LAB_SPAN[num] = (pg, end)
+for num, pg in _ordered:
+    nxt = min(a for a in _anchors if a > pg)
+    LAB_SPAN[num] = (pg, nxt - 1)
+
+
+def domain_span(d):
+    """Full deck range of a domain: its divider to the slide before the next divider."""
+    a = DOM_PAGE[d["num"]]
+    b = (DOM_PAGE.get(d["num"] + 1) or TOTAL + 1) - 1
+    return f"{a}–{b}"
 
 
 def slides_for(labs):
@@ -66,32 +76,32 @@ KIND_FILL = {"topic": TOPIC_FILL, "break": BREAK_FILL, "lunch": LUNCH_FILL,
 # (start, end, minutes, kind, text, labs)
 SCHEDULE = {
  1: ("System Management & Services / User Management", [
-    ("9:00", "9:15", 15, "admin", "Welcome, mandatory digital attendance (AM), trainer & learner introduction", None),
-    ("9:15", "9:30", 15, "admin", "Course overview, learning outcomes and ground rules", None),
-    ("9:30", "11:45", 135, "lab", "Domain 1 — System Management (23%): boot & FHS, kernel modules, LVM storage, "
+    ("9:30", "9:45", 15, "admin", "Welcome, mandatory digital attendance (AM), trainer & learner introduction", None),
+    ("9:45", "10:00", 15, "admin", "Course overview, learning outcomes and ground rules", None),
+    ("10:00", "12:15", 135, "lab", "Domain 1 — System Management (23%): boot & FHS, kernel modules, LVM storage, "
      "networking, shell operations. Hands-on Labs 1–5", [1, 2, 3, 4, 5]),
-    ("11:45", "12:45", 60, "lunch", "Lunch break", None),
-    ("12:45", "14:15", 90, "lab", "Domain 1 (cont.): backup & restore, virtualization. Hands-on Labs 6–7", [6, 7]),
-    ("14:15", "14:25", 10, "admin", "Digital attendance (PM)", None),
-    ("14:25", "17:15", 170, "lab", "Domain 2 — Services and User Management (20%): files, accounts, processes, "
+    ("12:15", "1:15", 60, "lunch", "Lunch break", None),
+    ("1:15", "2:45", 90, "lab", "Domain 1 (cont.): backup & restore, virtualization. Hands-on Labs 6–7", [6, 7]),
+    ("2:45", "2:55", 10, "admin", "Digital attendance (PM)", None),
+    ("2:55", "5:45", 170, "lab", "Domain 2 — Services and User Management (20%): files, accounts, processes, "
      "packages, systemd, containers. Hands-on Labs 8–13", [8, 9, 10, 11, 12, 13]),
-    ("17:15", "17:45", 30, "recap", "Domain 1–2 recap, Q&A and consolidation", None),
-    ("17:45", "18:00", 15, "recap", "Day 1 review, preview of Day 2 and PM digital attendance", None),
+    ("5:45", "6:15", 30, "recap", "Domain 1–2 recap, Q&A and consolidation", None),
+    ("6:15", "6:30", 15, "recap", "Day 1 review, preview of Day 2 and PM digital attendance", None),
  ]),
  2: ("Security, Automation, Troubleshooting & Final Assessment", [
-    ("9:00", "9:10", 10, "admin", "Mandatory digital attendance (AM) and Day 1 recap", None),
-    ("9:10", "11:45", 155, "lab", "Domain 3 — Security (18%): AAA/sudo/PAM, firewalls, OS & account hardening, "
+    ("9:30", "9:40", 10, "admin", "Mandatory digital attendance (AM) and Day 1 recap", None),
+    ("9:40", "12:15", 155, "lab", "Domain 3 — Security (18%): AAA/sudo/PAM, firewalls, OS & account hardening, "
      "cryptography, compliance & audit. Hands-on Labs 14–19", [14, 15, 16, 17, 18, 19]),
-    ("11:45", "12:45", 60, "lunch", "Lunch break", None),
-    ("12:45", "14:35", 110, "lab", "Domain 4 — Automation, Orchestration & Scripting (17%): Ansible, Bash, Python, "
+    ("12:15", "1:15", 60, "lunch", "Lunch break", None),
+    ("1:15", "3:05", 110, "lab", "Domain 4 — Automation, Orchestration & Scripting (17%): Ansible, Bash, Python, "
      "Git, responsible AI. Hands-on Labs 20–24", [20, 21, 22, 23, 24]),
-    ("14:35", "14:45", 10, "admin", "Digital attendance (PM)", None),
-    ("14:45", "15:35", 50, "lab", "Domain 5 — Troubleshooting (22%): monitoring, storage, network, security, "
+    ("3:05", "3:15", 10, "admin", "Digital attendance (PM)", None),
+    ("3:15", "4:05", 50, "lab", "Domain 5 — Troubleshooting (22%): monitoring, storage, network, security, "
      "performance. Hands-on Labs 25–29", [25, 26, 27, 28, 29]),
-    ("15:35", "15:55", 20, "lab", "Capstone — end-to-end server build & triage. Hands-on Lab 30", [30]),
-    ("15:55", "16:00", 5, "assess", "Revision · Briefing for Assessment · Course feedback & TRAQOM survey", None),
-    ("16:00", "17:00", 60, "assess", "Written Assessment (WA) — Short-Answer Questions (SAQ), 1 hour, open book", None),
-    ("17:00", "18:00", 60, "assess", "Practical Performance (PP) — hands-on Linux tasks, 1 hour, open book. "
+    ("4:05", "4:25", 20, "lab", "Capstone — end-to-end server build & triage. Hands-on Lab 30", [30]),
+    ("4:25", "4:30", 5, "assess", "Revision · Briefing for Assessment · Course feedback & TRAQOM survey", None),
+    ("4:30", "5:30", 60, "assess", "Written Assessment (WA) — Short-Answer Questions (SAQ), 1 hour, open book", None),
+    ("5:30", "6:30", 60, "assess", "Practical Performance (PP) — hands-on Linux tasks, 1 hour, open book. "
      "PM digital attendance; submit answers on the LMS", None),
  ]),
 }
@@ -129,8 +139,13 @@ prodoc.style_headings(doc)
 prodoc.add_cover_page(doc, "LESSON PLAN", COURSE["title"], COURSE["version"],
                       org_logo=COURSE["org_logo"], course_logo=COURSE["course_logo"])
 prodoc.add_version_control(doc, [
-    (COURSE["version"], "2 Jul 2026", "Initial release — CompTIA Linux+ XK0-006 V8 2-day lesson plan "
+    ("v1", "2 Jul 2026", "Initial release — CompTIA Linux+ XK0-006 V8 2-day lesson plan "
      "aligned to the 30 labs, the five exam domains and the slide deck (slide numbers cited).",
+     COURSE["trainer"]),
+    ("v2", "18 Aug 2026", "Full teaching chapters from the legacy Learner Guide deck merged into the "
+     "slide deck and re-ordered onto the five XK0-006 exam domains; exam-domain blueprint slide added at "
+     "the start; CompTIA exam registration and practice-exam slides added at the end; labs restructured "
+     "one-folder-per-lab; slide references updated to the v2 deck.",
      COURSE["trainer"]),
 ])
 prodoc.add_toc(doc)
@@ -141,7 +156,7 @@ info = [("Course Title", COURSE["title"]),
         ("Certification Exam", f"CompTIA Linux+ {COURSE['exam']}"),
         ("Training Provider", f"{COURSE['org']}  (UEN {COURSE['uen']})"),
         ("Duration", "2 days · 8 training hours per day (16 hours)"),
-        ("Daily Timing", "9:00 am – 6:00 pm (1-hour lunch; tea breaks within training time)"),
+        ("Daily Timing", "9:30 am – 6:30 pm (1-hour lunch; tea breaks within training time)"),
         ("Mode", "Instructor-led, hands-on labs on the free Killercoda Ubuntu Playground"),
         ("Trainer", COURSE["trainer"])]
 t = doc.add_table(rows=0, cols=2); t.style = "Table Grid"
@@ -175,10 +190,10 @@ for d in DOMAINS:
     set_cell(c[0], f"{d['num']}. {d['title']}", bold=True, size=9.5, fill=TOPIC_FILL)
     set_cell(c[1], f"{d['weight']}%", size=9.5, align=WD_ALIGN_PARAGRAPH.CENTER)
     set_cell(c[2], f"{d['labs'][0]}–{d['labs'][-1]}", size=9.5, align=WD_ALIGN_PARAGRAPH.CENTER)
-    set_cell(c[3], slides_for(d["labs"]), size=9.5, align=WD_ALIGN_PARAGRAPH.CENTER)
+    set_cell(c[3], domain_span(d), size=9.5, align=WD_ALIGN_PARAGRAPH.CENTER)
 
 H("Daily Schedule", 1)
-para("Each training day runs 9:00 am – 6:00 pm and delivers 8 instructional hours (1-hour lunch; "
+para("Each training day runs 9:30 am – 6:30 pm and delivers 8 instructional hours (1-hour lunch; "
      "tea breaks counted within training time). The Slides column cites the deck page range the "
      "trainer runs for each teaching session.")
 for day, (theme, rows) in SCHEDULE.items():

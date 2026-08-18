@@ -1,3 +1,6 @@
+# Local environment (courseware Drive link etc.) — never pushed
+.env
+
 # OS / editor cruft
 .DS_Store
 Thumbs.db

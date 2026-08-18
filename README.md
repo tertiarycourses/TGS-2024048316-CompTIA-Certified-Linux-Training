@@ -2,7 +2,7 @@
 
 > **Course:** WSQ — CompTIA Certified Linux+ Training
 > **Course Code:** TGS-2024048316
-> **Register here:** https://www.tertiarycourses.com.sg/wsq-comptia-linux-training.html
+> **Register here:** https://www.tertiarycourses.com.sg/wsq-comptia-certified-linux-training.html
 
 These are the official hands-on lab exercises for the WSQ CompTIA Certified Linux+ Training course delivered by [**Tertiary Infotech Academy Pte Ltd**](https://www.tertiarycourses.com.sg/).
 
@@ -18,9 +18,9 @@ Generated deliverables live in [courseware/](courseware/):
 
 | Deliverable | File |
 |---|---|
-| **PPT** — visual training deck (all-white house style, 319 slides) | [courseware/PPT-CompTIA-Linux-Plus-XK0-006.pptx](courseware/PPT-CompTIA-Linux-Plus-XK0-006.pptx) |
-| **LP** — Lesson Plan (2-day, Word + PDF) | [courseware/LP-CompTIA-Linux-Plus-XK0-006.docx](courseware/LP-CompTIA-Linux-Plus-XK0-006.docx) |
-| **LG** — Learner Guide (Word + PDF) | [courseware/LG-CompTIA-Linux-Plus-XK0-006.docx](courseware/LG-CompTIA-Linux-Plus-XK0-006.docx) |
+| **PPT** — visual training deck (house admin/lab slides + all 22 teaching chapters, 2,181 slides, exam-domain order) | [courseware/PPT-CompTIA-Linux-Plus-XK0-006-v2.pptx](courseware/PPT-CompTIA-Linux-Plus-XK0-006-v2.pptx) |
+| **LP** — Lesson Plan (2-day, Word + PDF) | [courseware/LP-CompTIA-Linux-Plus-XK0-006-v2.docx](courseware/LP-CompTIA-Linux-Plus-XK0-006-v2.docx) |
+| **LG** — Learner Guide (Word + PDF) | [courseware/LG-CompTIA-Linux-Plus-XK0-006-v2.docx](courseware/LG-CompTIA-Linux-Plus-XK0-006-v2.docx) |
 
 All three map 1:1 to the five CompTIA Linux+ XK0-006 exam domains and the 30 labs. The deck and Lesson Plan are cross-linked by slide number via `courseware/slide_map.json`.
 
@@ -55,44 +55,44 @@ python3 .claude/skills/wsq-learner-guide/build_learner_guide.py
 ## Lab catalogue
 
 ### Domain 1 — System Management (23%)
-- [Lab 1 — Boot Process & Filesystem Hierarchy](labs/lab-01-boot-fhs.md)
-- [Lab 2 — Kernel Modules & Device Management](labs/lab-02-kernel-devices.md)
-- [Lab 3 — Storage with LVM, Partitions & Filesystems](labs/lab-03-storage-lvm.md)
-- [Lab 4 — Network Configuration with NetworkManager & Netplan](labs/lab-04-networking.md)
-- [Lab 5 — Shell Operations, Redirection & Text Processing](labs/lab-05-shell.md)
-- [Lab 6 — Backup & Restore with tar, rsync & dd](labs/lab-06-backup-restore.md)
-- [Lab 7 — Virtualization with QEMU/KVM & libvirt](labs/lab-07-virtualization.md)
+- [Lab 1 — Boot Process & Filesystem Hierarchy](labs/lab-01-boot-fhs/)
+- [Lab 2 — Kernel Modules & Device Management](labs/lab-02-kernel-devices/)
+- [Lab 3 — Storage with LVM, Partitions & Filesystems](labs/lab-03-storage-lvm/)
+- [Lab 4 — Network Configuration with NetworkManager & Netplan](labs/lab-04-networking/)
+- [Lab 5 — Shell Operations, Redirection & Text Processing](labs/lab-05-shell/)
+- [Lab 6 — Backup & Restore with tar, rsync & dd](labs/lab-06-backup-restore/)
+- [Lab 7 — Virtualization with QEMU/KVM & libvirt](labs/lab-07-virtualization/)
 
 ### Domain 2 — Services and User Management (20%)
-- [Lab 8 — File & Directory Management](labs/lab-08-files-directories.md)
-- [Lab 9 — Local Account & Group Management](labs/lab-09-users-groups.md)
-- [Lab 10 — Processes, Jobs & Scheduling](labs/lab-10-processes-jobs.md)
-- [Lab 11 — Software & Package Management](labs/lab-11-packages.md)
-- [Lab 12 — Service Management with systemd](labs/lab-12-systemd.md)
-- [Lab 13 — Containers with Docker & Podman](labs/lab-13-containers.md)
+- [Lab 8 — File & Directory Management](labs/lab-08-files-directories/)
+- [Lab 9 — Local Account & Group Management](labs/lab-09-users-groups/)
+- [Lab 10 — Processes, Jobs & Scheduling](labs/lab-10-processes-jobs/)
+- [Lab 11 — Software & Package Management](labs/lab-11-packages/)
+- [Lab 12 — Service Management with systemd](labs/lab-12-systemd/)
+- [Lab 13 — Containers with Docker & Podman](labs/lab-13-containers/)
 
 ### Domain 3 — Security (18%)
-- [Lab 14 — AAA: sudo, PAM & Polkit](labs/lab-14-aaa-sudo-pam.md)
-- [Lab 15 — Firewalls with firewalld, ufw, nftables & iptables](labs/lab-15-firewall.md)
-- [Lab 16 — OS Hardening: SELinux, SSH & SUID](labs/lab-16-hardening.md)
-- [Lab 17 — Account Hardening with pam_tally2 & MFA](labs/lab-17-account-hardening.md)
-- [Lab 18 — Cryptography: GPG, LUKS2, OpenSSL & WireGuard](labs/lab-18-crypto.md)
-- [Lab 19 — Compliance, Auditing & File Integrity (AIDE, OpenSCAP)](labs/lab-19-compliance-audit.md)
+- [Lab 14 — AAA: sudo, PAM & Polkit](labs/lab-14-aaa-sudo-pam/)
+- [Lab 15 — Firewalls with firewalld, ufw, nftables & iptables](labs/lab-15-firewall/)
+- [Lab 16 — OS Hardening: SELinux, SSH & SUID](labs/lab-16-hardening/)
+- [Lab 17 — Account Hardening with pam_tally2 & MFA](labs/lab-17-account-hardening/)
+- [Lab 18 — Cryptography: GPG, LUKS2, OpenSSL & WireGuard](labs/lab-18-crypto/)
+- [Lab 19 — Compliance, Auditing & File Integrity (AIDE, OpenSCAP)](labs/lab-19-compliance-audit/)
 
 ### Domain 4 — Automation, Orchestration & Scripting (17%)
-- [Lab 20 — Infrastructure as Code with Ansible](labs/lab-20-ansible.md)
-- [Lab 21 — Bash Shell Scripting](labs/lab-21-bash-scripting.md)
-- [Lab 22 — Python for System Administration](labs/lab-22-python.md)
-- [Lab 23 — Version Control with Git](labs/lab-23-git.md)
-- [Lab 24 — Responsible AI Use for Linux Administrators](labs/lab-24-ai-best-practices.md)
+- [Lab 20 — Infrastructure as Code with Ansible](labs/lab-20-ansible/)
+- [Lab 21 — Bash Shell Scripting](labs/lab-21-bash-scripting/)
+- [Lab 22 — Python for System Administration](labs/lab-22-python/)
+- [Lab 23 — Version Control with Git](labs/lab-23-git/)
+- [Lab 24 — Responsible AI Use for Linux Administrators](labs/lab-24-ai-best-practices/)
 
 ### Domain 5 — Troubleshooting (22%)
-- [Lab 25 — Monitoring with SNMP, Prometheus & Node Exporter](labs/lab-25-monitoring.md)
-- [Lab 26 — Troubleshoot Hardware, Storage & OS Issues](labs/lab-26-troubleshoot-storage.md)
-- [Lab 27 — Troubleshoot Network Issues](labs/lab-27-troubleshoot-network.md)
-- [Lab 28 — Troubleshoot Security Issues (SELinux, ACL, Certs)](labs/lab-28-troubleshoot-security.md)
-- [Lab 29 — Troubleshoot Performance (CPU, Memory, I/O)](labs/lab-29-troubleshoot-performance.md)
-- [Lab 30 — Capstone: End-to-End Server Build & Triage](labs/lab-30-capstone.md)
+- [Lab 25 — Monitoring with SNMP, Prometheus & Node Exporter](labs/lab-25-monitoring/)
+- [Lab 26 — Troubleshoot Hardware, Storage & OS Issues](labs/lab-26-troubleshoot-storage/)
+- [Lab 27 — Troubleshoot Network Issues](labs/lab-27-troubleshoot-network/)
+- [Lab 28 — Troubleshoot Security Issues (SELinux, ACL, Certs)](labs/lab-28-troubleshoot-security/)
+- [Lab 29 — Troubleshoot Performance (CPU, Memory, I/O)](labs/lab-29-troubleshoot-performance/)
+- [Lab 30 — Capstone: End-to-End Server Build & Triage](labs/lab-30-capstone/)
 
 ---
 

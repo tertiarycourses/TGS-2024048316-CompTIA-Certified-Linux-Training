@@ -62,89 +62,111 @@ def _logo(name):
 ORG_LOGO    = _logo("tertiary-infotech-logo.png")
 COURSE_LOGO = _logo("comptia-linux-logo.png")   # None if absent → Tertiary-only cover (as LP/LG)
 
-Q_VER, A_VER = "v1", "v1"   # single standardised version across all four files
+Q_VER, A_VER = "v2", "v2"   # single standardised version across all four files
 BRAND = RGBColor(0x1F, 0x6F, 0xEB); DARK = RGBColor(0x11, 0x18, 0x27); GREY = RGBColor(0x55, 0x5B, 0x66)
 # Assessments carry the cover page only — no Document Version Control Record.
 
 # ---------------------------------------------------------------- WRITTEN (KNOWLEDGE)
 # (criterion, context, question, [model-answer points]) — each traces to the course slides.
 WRITTEN = [
+ # Each question tests its accredited Knowledge statement (CP_TIPL_comptia_linuxplus v2.1):
+ #  K1 Advanced installation and maintenance procedures
+ #  K2 Critical components of application support guides
+ #  K3 Advanced troubleshooting techniques
+ #  K4 Performance analysis of applications
+ #  K5 Key factors or considerations in evaluating change requests
  ("K1",
-  "A Linux server must be brought up from power-on and its files organised in a predictable way. Domain 1 "
-  "(System Management) covers the boot chain and the Filesystem Hierarchy Standard.",
-  "Describe the Linux boot process from power-on to a login prompt, explaining the roles of the firmware/UEFI, "
-  "GRUB2, the kernel, the initramfs and systemd. What is the Filesystem Hierarchy Standard (FHS) and why does "
-  "it matter to an administrator?",
-  ["Firmware/UEFI (or BIOS) initialises the hardware and hands off to the boot loader.",
-   "GRUB2 loads the Linux kernel and the initramfs, passing the kernel command line (root device, options).",
-   "The kernel mounts the initramfs (a small cpio archive) as a temporary root to load storage/crypto modules, "
-   "then mounts the real root filesystem.",
-   "systemd (PID 1) starts services and reaches a target (e.g. multi-user.target / graphical.target), ending at "
-   "a login prompt.",
-   "The FHS is the standard layout of the root filesystem — /etc (config), /var (variable data/logs), /usr "
-   "(programs), /home (users), /bin, /sbin, /proc & /sys (virtual). It matters because it lets admins and tools "
-   "find files predictably across distributions. "
-   "(Slides: Domain 1 — Key Concepts / Lab 1 — Boot Process & Filesystem Hierarchy)"]),
+  "Your team routinely installs and maintains applications on Linux servers. Domain 2 (Services and User "
+  "Management) covers software management; Domain 1 covers backup before maintenance.",
+  "Describe the advanced procedures you would follow to INSTALL and MAINTAIN an application on a Linux server. "
+  "Cover: installing with a package manager on both families (apt/dpkg and dnf/rpm), installing a local "
+  "package file with its dependencies resolved, installing from source (configure → make → make install), and "
+  "the routine maintenance procedures you would schedule — applying updates safely and backing up the "
+  "application's data before any change.",
+  ["Debian family: apt update && apt install <pkg> (dpkg -i for a local .deb, then apt -f install); RHEL "
+   "family: dnf install <pkg> (rpm -i / dnf install ./file.rpm for a local file) — the package manager "
+   "resolves dependencies from the repositories.",
+   "Local package: sudo apt install ./crm_analytics.deb — apt resolves and installs the dependency chain; "
+   "verify with dpkg -l / dpkg -L (or rpm -qa / rpm -ql).",
+   "From source: install build tools, then ./configure (checks prerequisites, writes the Makefile), make "
+   "(compiles), sudo make install (installs — typically under /usr/local per the FHS).",
+   "Maintenance: apply updates on a schedule (apt update/upgrade, dnf upgrade, unattended-upgrades for "
+   "security patches); restart and verify the service after (systemctl status / journalctl -u).",
+   "Before any change: back up the application data and configs — tar -czf app-$(date +%F).tar.gz, or rsync "
+   "-a to a backup target — so the change can be rolled back. "
+   "(Slides: Domain 2 — Building/Installing Software & Managing Software Configurations / Lab 11 — Packages / "
+   "Lab 6 — Backup & Restore)"]),
  ("K2",
-  "Domain 2 (Services and User Management) covers how Linux stores local accounts and how work is run as "
-  "services or on a schedule.",
-  "Explain how Linux stores and manages local user accounts, including the roles of /etc/passwd, /etc/shadow "
-  "and /etc/group. Then contrast a systemd service with a cron (or at) job for running work on a schedule.",
-  ["/etc/passwd holds one line per account (username, UID, GID, home, login shell); it is world-readable.",
-   "/etc/shadow holds the hashed passwords and password-ageing fields, readable only by root.",
-   "/etc/group defines groups and their members; a user has one primary group and any number of supplementary "
-   "groups (usermod -aG). Accounts are managed with useradd/adduser, usermod, passwd and chage.",
-   "A systemd service (unit) runs and supervises a long-running or one-shot program — start/enable/status via "
-   "systemctl, with logs in journalctl; timers can trigger units on a schedule.",
-   "cron runs recurring five-field jobs (crontab), anacron catches missed jobs, and at runs a one-off job at a "
-   "given time. Use a service/timer for supervised, journald-integrated tasks; use cron/at for simple scheduled "
-   "commands. (Slides: Domain 2 — Key Concepts / Lab 9 — Accounts / Lab 10 — Processes & Scheduling / Lab 12 — systemd)"]),
+  "A support (training) guide lets any administrator on the team install, operate and troubleshoot an "
+  "application consistently — you write one in Lab 24 and for the CRM application in the practical.",
+  "You are asked to write the support guide for an application running on a Linux server. Identify the "
+  "CRITICAL COMPONENTS the guide must contain and explain why each is needed. Include at least: installation "
+  "steps and prerequisites, configuration files and their locations, service operation, log locations, routine "
+  "maintenance, and basic troubleshooting with escalation.",
+  ["Installation section — prerequisites (packages, resources) and the exact install commands, so a new "
+   "administrator can rebuild the application from scratch.",
+   "Configuration section — which files control the application and where they live (per the FHS: /etc for "
+   "config), with the meaning of the key settings and a copy of the known-good config.",
+   "Operation section — how to start/stop/enable the service under systemd (systemctl start/stop/enable/"
+   "status) and how to confirm it is healthy (ss -tlnp for its port).",
+   "Logging section — where the logs are (/var/log, journalctl -u <unit>) and how to read/filter them, "
+   "because logs are the first stop in any incident.",
+   "Maintenance section — the update procedure and the backup/restore procedure (tar/rsync) with its schedule.",
+   "Troubleshooting section — the common failure symptoms, the checks to run, and when/to whom to escalate. "
+   "(Slides: Domain 4 — Lab 24 — documentation & responsible AI / Domain 2 — Lab 12 — systemd / Lab 6 — Backup)"]),
  ("K3",
-  "Domain 3 (Security) covers firewalling at several layers of the netfilter stack and operating-system "
-  "hardening.",
-  "Linux firewalling can be configured at several layers. Describe ufw, firewalld and nftables/iptables and "
-  "explain what stateful (connection-tracking) inspection means. Give two OS-hardening techniques you would "
-  "apply to a newly built server.",
-  ["ufw (Uncomplicated Firewall) is a simple front end for allow/deny rules on ports/services — good for hosts.",
-   "firewalld manages the firewall with zones and rich rules and is common on RHEL-family systems.",
-   "iptables/nftables are the low-level netfilter front ends; nftables is the modern replacement and its inet "
-   "family covers both IPv4 and IPv6. All of them ultimately program the kernel's netfilter framework.",
-   "Stateful inspection means the firewall tracks connection state (NEW / ESTABLISHED / RELATED) via conntrack, "
-   "so it can allow return traffic for permitted connections and only accept genuinely new sessions.",
-   "OS-hardening examples (any two): harden SSH (PermitRootLogin no, key-only auth), apply least-privilege file "
-   "permissions/ACLs and remove unneeded SUID bits, enforce SELinux/AppArmor, run fail2ban, disable cleartext "
-   "services (telnet/FTP), keep the system patched. "
-   "(Slides: Domain 3 — Key Concepts / Lab 15 — Firewalls / Lab 16 — OS Hardening)"]),
+  "Domain 5 (Troubleshooting) teaches a systematic method plus the per-subsystem techniques and tools.",
+  "Describe the systematic troubleshooting method you would apply when an application on a Linux server stops "
+  "working. Then name the ADVANCED TECHNIQUES/TOOLS you would use to diagnose each of the following: (a) a "
+  "failed systemd service, (b) a storage/disk problem, and (c) a network connectivity problem.",
+  ["Method: establish/compare against a baseline → reproduce and scope the problem → gather evidence (logs, "
+   "counters) → isolate the layer (service, OS, storage, network) → form and test a hypothesis → remediate → "
+   "verify against the baseline and document.",
+   "(a) Failed service: systemctl status <unit> (state + last lines), journalctl -u <unit> -p err --since … "
+   "(full log), systemd-analyze verify (unit-file errors); check dependencies/ordering with systemctl "
+   "list-dependencies.",
+   "(b) Storage: df -h / df -i (space AND inode exhaustion), du -sh (what is consuming), lsblk/mount (is it "
+   "mounted correctly), dmesg (I/O errors), smartctl -a (disk health), iostat -x (saturation).",
+   "(c) Network: ip a / ip route (address & routing), ss -tlnp (is the port listening), ping / traceroute "
+   "(reachability & path), dig/nslookup (DNS), tcpdump (what is actually on the wire), plus the firewall "
+   "rules (nft list ruleset / firewall-cmd --list-all).",
+   "Fix the root cause, not the symptom, and record the finding in the support guide. "
+   "(Slides: Domain 5 — Labs 26–28 — Storage / Network / Security Troubleshooting)"]),
  ("K4",
-  "Domain 4 (Automation, Orchestration and Scripting) covers Infrastructure as Code and shell scripting.",
-  "What does it mean for an Ansible playbook to be idempotent, and why is that valuable? Then describe the core "
-  "Bash scripting constructs you would use to automate an administrative task, and name one tool you would use "
-  "to check a shell script for errors.",
-  ["Idempotent means running the playbook repeatedly converges the system to the same desired state without "
-   "making unnecessary changes — a task only changes something if it is not already correct.",
-   "It is valuable because runs are safe to repeat, produce predictable results, and avoid drift; handlers fire "
-   "only when a task reports 'changed', so services are not needlessly restarted.",
-   "Core Bash constructs: a shebang (#!/usr/bin/env bash); variables and parameter expansion (\"${1:-default}\"); "
-   "conditionals (if / case with [[ ]] test operators); loops (for / while / until); functions; and exit codes "
-   "($?).",
-   "Defensive scripts use set -euo pipefail and quote variables.",
-   "shellcheck is the standard static analyser used to catch common shell bugs (unquoted variables, wrong test "
-   "syntax). (Slides: Domain 4 — Key Concepts / Lab 20 — Ansible / Lab 21 — Bash Scripting)"]),
- ("K5",
-  "Domain 5 (Troubleshooting) covers monitoring vocabulary and a repeatable method for diagnosing performance "
-  "problems.",
-  "Describe the universal performance-troubleshooting loop. For a CPU bottleneck, a memory-pressure problem and "
-  "a disk-I/O bottleneck, name one command or counter you would use to confirm each. Briefly contrast SLA, SLI "
-  "and SLO.",
-  ["The loop: establish a baseline → reproduce/observe the spike → identify the bottleneck with the right "
-   "counter → remediate → verify recovery against the baseline.",
-   "CPU bottleneck: high load average vs core count, confirmed per-CPU with mpstat -P ALL or top (%us/%sy).",
+  "Domain 5 covers monitoring vocabulary and the counters that quantify an application's performance.",
+  "Explain how you would ANALYSE THE PERFORMANCE of an application on a Linux host. Describe the "
+  "performance-analysis loop; for a CPU bottleneck, a memory-pressure problem and a disk-I/O bottleneck name "
+  "the command/counter that confirms each; and briefly contrast SLA, SLI and SLO.",
+  ["The loop: establish a baseline → observe/reproduce the degradation → identify the bottleneck with the "
+   "right counter → remediate → verify recovery against the baseline.",
+   "CPU bottleneck: load average vs core count (uptime/nproc), confirmed per-CPU with mpstat -P ALL or top "
+   "(%us/%sy); attribute with ps/pidstat.",
    "Memory pressure: free -m shows low available memory and vmstat shows non-zero si/so (swap in/out).",
-   "Disk-I/O bottleneck: iostat -x shows high %util and await (and processes stuck in D state); pidstat -d "
-   "attributes the I/O.",
-   "SLI = a measured indicator (e.g. request latency, error rate); SLO = the internal target for an SLI (e.g. "
-   "99.9% of requests < 200 ms); SLA = the external, contractual promise (often with penalties) built on SLOs. "
-   "(Slides: Domain 5 — Key Concepts / Lab 25 — Monitoring / Lab 29 — Performance)"]),
+   "Disk-I/O bottleneck: iostat -x shows high %util and await (processes stuck in D state); pidstat -d "
+   "attributes the I/O to a process.",
+   "SLI = a measured indicator (e.g. request latency, error rate); SLO = the internal target for an SLI "
+   "(e.g. 99.9% of requests < 200 ms); SLA = the external, contractual promise (often with penalties) built "
+   "on SLOs. (Slides: Domain 5 — Key Concepts / Lab 25 — Monitoring / Lab 29 — Performance)"]),
+ ("K5",
+  "Applications evolve through change requests, which must be evaluated before they are implemented — as you "
+  "do for the CRM application in Lab 21 and in the practical assessment.",
+  "You receive three change requests for a CRM application on your Linux server: real-time data "
+  "synchronisation, a new reporting module, and a database upgrade. What KEY FACTORS would you consider in "
+  "evaluating whether each request is VALID and FEASIBLE? Include the commands you would use to check the "
+  "host's capacity, and the risk controls you would insist on before approving a change.",
+  ["Validity: does the request serve a real business/user need (check against user feedback), and is it in "
+   "scope for the application?",
+   "Resource feasibility: check the host's capacity against the request's requirements — nproc (CPU cores), "
+   "free -m (available memory), df -h / df -m (free disk) — as scripted in evaluate_changes.sh (Lab 21).",
+   "Compatibility & dependencies: OS/package versions, database compatibility for the upgrade, impact on the "
+   "other components.",
+   "Security impact: new open ports/services, new data flows, required firewall/hardening changes.",
+   "Risk controls before approval: full backup with a tested rollback plan (tar/rsync), test in a staging "
+   "environment first, an agreed maintenance/downtime window, and monitoring after the change to verify "
+   "success.",
+   "Outcome: rank each request feasible / not feasible on the current host, and propose the enhancement path "
+   "to the developers. (Slides: Domain 4 — Lab 21 — Bash Scripting (evaluate_changes.sh) / Lab 6 — Backup / "
+   "Domain 5 — Monitoring)"]),
 ]
 
 # ---------------------------------------------------------------- PRACTICAL (ACTIVITY-BASED)
@@ -158,7 +180,7 @@ SCENARIO = (
 
 BOX_CAP = "Paste your commands, script and output snapshots, and text-file contents in the box below"
 PRACTICAL = [
- ("Task 1", "LO4",
+ ("Task 1", "LO1 · A7, A2",
   "Evaluate change requests and write a training guide. You've been given several change requests for the CRM "
   "application — real-time data synchronisation, a new reporting module, and a database upgrade. "
   "Part A — Write a Bash script (evaluate_changes.sh) that inspects the host's resources (CPU cores, available "
@@ -195,7 +217,7 @@ PRACTICAL = [
   "3. Logs:     journalctl -u crm -f\n\n"
   "Award the mark where the candidate uses resource checks (nproc / free / df), a conditional plus a loop, a "
   "shellcheck-clean script, and a clear training guide. (Lab 21 — Bash Scripting; Lab 24 — documentation.)"),
- ("Task 2", "LO5",
+ ("Task 2", "LO2 · A3, A4",
   "Troubleshoot the CRM from its logs. The CRM application has been experiencing slowdowns. Analyse the provided "
   "log file crm_app.log using Linux text-processing tools to find the errors and patterns behind the slowdown. "
   "Filter the log for errors, count how often each error type occurs, and identify the busiest time window. "
@@ -217,7 +239,7 @@ PRACTICAL = [
   "- Proposed fix: increase the DB connection-pool size, add the missing index, then restart crm.\n\n"
   "Award the mark for correct grep / awk / sort / uniq filtering, identifying the dominant error and the peak "
   "window, and a clear findings file with remediation steps. (Lab 5 — Text Processing; Lab 25 — Monitoring.)"),
- ("Task 3", "LO5",
+ ("Task 3", "LO3 · A5, A6",
   "Analyse performance and optimise. Review the provided performance_report.txt for the CRM host and identify at "
   "least three underlying issues contributing to poor performance (consider CPU, memory, disk I/O and "
   "processes). Then read user_feedback.txt and propose concrete changes to optimise the application. List the "
@@ -239,7 +261,7 @@ PRACTICAL = [
   "renice the heavy batch job so it stops starving the app.\n\n"
   "Award the mark for mapping each symptom to the right counter (load vs mpstat, free vs vmstat si/so, iostat "
   "%util/await), three genuine issues, and feedback-driven optimisations. (Lab 29 — Performance; Lab 10 — Processes.)"),
- ("Task 4", "LO2",
+ ("Task 4", "LO4 · A1, A8",
   "Deploy and test a new feature package. A new data-analytics feature is shipped as a Debian package, "
   "crm_analytics.deb. Install it, configure it to run as a service, and test it. Show the commands to install "
   "the package (resolving dependencies), enable and start it under systemd, confirm it is active and listening, "

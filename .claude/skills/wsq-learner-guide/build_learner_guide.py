@@ -23,7 +23,7 @@ import prodoc
 from prodoc import BRAND, DARK, GREY
 from course_content import (COURSE, DOMAINS, LABS_BY_NUM, domain_labs, REPO, COURSEWARE)
 
-DOCX_OUT = os.path.join(COURSEWARE, "LG-CompTIA-Linux-Plus-XK0-006.docx")
+DOCX_OUT = os.path.join(COURSEWARE, f"LG-CompTIA-Linux-Plus-XK0-006-{COURSE['version']}.docx")
 MD_OUT = os.path.join(REPO, "LEARNER-GUIDE.md")
 
 CODE_BG = "F4F5F7"
@@ -85,8 +85,11 @@ def build():
     prodoc.add_cover_page(doc, "Learner Guide", COURSE["title"], COURSE["version"],
                           org_logo=COURSE["org_logo"], course_logo=COURSE["course_logo"])
     prodoc.add_version_control(doc, [
-        ("1.0", "1 Jul 2026", "Initial release — aligned to CompTIA Linux+ XK0-006 V8 "
+        ("v1", "1 Jul 2026", "Initial release — aligned to CompTIA Linux+ XK0-006 V8 "
          "exam domains and the 30 hands-on labs.", COURSE["trainer"]),
+        ("v2", "18 Aug 2026", "Aligned to the v2 slide deck (legacy teaching chapters merged and "
+         "re-ordered onto the five exam domains); labs restructured one-folder-per-lab; exam "
+         "registration and practice-exam guidance added.", COURSE["trainer"]),
     ])
     prodoc.add_toc(doc)
 

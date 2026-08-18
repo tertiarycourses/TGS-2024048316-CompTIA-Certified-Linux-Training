@@ -47,13 +47,17 @@ COURSE = dict(
     exam="XK0-006 V8",
     org="Tertiary Infotech Academy Pte Ltd",
     uen="201200696W",
-    version="1.0",
+    version="v2",
+    version_date="18 August 2026",
     trainer="Dr. Alfred Ang",
     days=2,
     lms="https://lms-tms.tertiaryinfotech.com/",
     killercoda="https://killercoda.com/playgrounds/scenario/ubuntu",
-    repo="https://github.com/tertiarycourses/TGS-2024048316-LinuxPlus",
-    register="https://www.tertiarycourses.com.sg/wsq-comptia-linux-training.html",
+    repo="https://github.com/tertiarycourses/TGS-2024048316-CompTIA-Certified-Linux-Training",
+    register="https://www.tertiarycourses.com.sg/wsq-comptia-certified-linux-training.html",
+    practice_exam="https://exams.tertiaryinfotech.com/practice-exams/comptia/comptia-linux-plus",
+    exam_voucher="https://store.comptia.org",
+    exam_pearson="https://home.pearsonvue.com/comptia",
     org_logo=os.path.join(ASSETS, "tertiary-infotech-logo.png"),
     course_logo=os.path.join(ASSETS, "comptia-linux-logo.png"),
 )
@@ -169,6 +173,57 @@ DOMAIN_CONCEPTS = {
 DAY_TOPICS = {
     1: [1, 2],   # Day 1: Domains 1 & 2
     2: [3, 4, 5],  # Day 2: Domains 3, 4, 5 + Capstone + Assessment
+}
+
+# ---------------------------------------------------------------- legacy reference deck
+# The full v3 Learner Guide deck (reference/): 22 chapters of teaching slides whose
+# content and graphics are carried into the generated deck, REORDERED onto the
+# XK0-006 exam domains. Ranges are 1-based inclusive slide numbers in the old deck.
+REFERENCE_DECK = os.path.join(
+    REPO, "reference",
+    "WSQ - Learner Guide Slides - CompTIA Certified Linux+ Training - v3.pptx")
+
+# (chapter, first_slide, last_slide, domain, chapter title)
+REFERENCE_CHAPTERS = [
+    (1,    17,   87, 1, "Understanding Linux Fundamentals"),
+    (2,    88,  186, 2, "Managing Files and Directories"),
+    (3,   187,  221, 1, "Configuring and Managing Storage"),
+    (4,   222,  321, 2, "Managing Processes and Services"),
+    (5,   322,  413, 1, "Using Network Tools and Configuration Files"),
+    (6,   414,  550, 2, "Building and Installing Software"),
+    (7,   551,  575, 2, "Managing Software Configurations"),
+    (8,   577,  666, 3, "Understanding Linux Security Best Practices"),
+    (9,   667,  744, 2, "Implementing Identity Management"),
+    (10,  745,  823, 3, "Implementing and Configuring Firewalls"),
+    (11,  824,  885, 1, "Using Remote Connectivity for System Management"),
+    (12,  886, 1039, 3, "Understanding and Applying Access Controls"),
+    (13, 1041, 1221, 4, "Automating Tasks via Shell Scripting"),
+    (14, 1222, 1260, 2, "Perform Basic Container Operations"),
+    (15, 1261, 1335, 4, "Performing Basic Version Control Using Git"),
+    (16, 1336, 1376, 4, "Understanding Infrastructure as Code"),
+    (17, 1377, 1429, 4, "Understanding Containers, Cloud, and Orchestration"),
+    (18, 1431, 1589, 5, "Analyzing and Troubleshooting Storage Issues"),
+    (19, 1590, 1686, 5, "Analyzing and Troubleshooting Network Resource Issues"),
+    (20, 1687, 1756, 5, "Analyzing and Troubleshooting CPU and Memory Issues"),
+    (21, 1757, 1803, 5, "Analyzing and Troubleshooting User and File Permissions"),
+    (22, 1804, 1889, 5, "Analyzing and Troubleshooting Common Problems Using Systemd"),
+]
+
+# Order the chapters appear inside each domain (follows the objective order).
+DOMAIN_CHAPTERS = {
+    1: [1, 3, 5, 11],
+    2: [2, 9, 4, 6, 7, 14],
+    3: [8, 10, 12],
+    4: [16, 17, 13, 15],
+    5: [18, 19, 20, 21, 22],
+}
+
+# Old-deck slides NOT carried over: the superseded admin block (1-16), the four
+# Part dividers, the retired lab-pointer slides (they reference a lab set that no
+# longer exists), and the old summary/close (replaced by the house tail slides).
+REFERENCE_DROP = set(range(1, 17)) | {576, 1040, 1430} | set(range(1890, 1897)) | {
+    24, 48, 136, 186, 200, 400, 402, 411, 749, 823, 889,
+    1039, 1046, 1352, 1399, 1686, 1887,
 }
 
 
