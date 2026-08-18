@@ -65,9 +65,9 @@ Full tool list with install commands: [labs/tools.md](labs/tools.md). Lab refere
 ```
 .
 ├── courseware/                  # Generated deliverables (single-source build)
-│   ├── PPT-CompTIA-Linux-Plus-XK0-006-v2.pptx   # 2,181-slide training deck (+ PDF)
-│   ├── LP-CompTIA-Linux-Plus-XK0-006-v2.docx    # 2-day Lesson Plan (+ PDF)
-│   ├── LG-CompTIA-Linux-Plus-XK0-006-v2.docx    # Learner Guide (+ PDF)
+│   ├── PPT-CompTIA-Linux-Plus-XK0-006-v3.pptx   # 525-slide training deck (+ PDF)
+│   ├── LP-CompTIA-Linux-Plus-XK0-006-v3.docx    # 2-day Lesson Plan (+ PDF)
+│   ├── LG-CompTIA-Linux-Plus-XK0-006-v3.docx    # Learner Guide (+ PDF)
 │   ├── slide_map.json           # lab/domain/chapter → deck slide numbers
 │   └── archive/                 # superseded versions
 ├── labs/                        # 30 hands-on labs — one folder per lab
@@ -80,7 +80,7 @@ Full tool list with install commands: [labs/tools.md](labs/tools.md). Lab refere
 
 > The confidential `assessment/` folder (question papers + answer keys) is **not** in this repository — it is distributed to trainers via Google Drive only.
 
-The deck carries the house admin/lab slides **plus all 22 teaching chapters**, re-sequenced onto the five exam domains, with the exam-domain blueprint at the start and the CompTIA exam registration + practice exam at the end.
+The deck follows the exam blueprint objective-by-objective (1.1 → 5.5) in the standard house slide format — condensed teaching content with key screenshots, full step-by-step lab slides, and the exam-domain blueprint at the start and the CompTIA exam registration + practice exam at the end.
 
 ## Course Details
 

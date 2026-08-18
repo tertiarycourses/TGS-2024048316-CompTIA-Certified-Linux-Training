@@ -90,6 +90,8 @@ def build():
         ("v2", "18 Aug 2026", "Aligned to the v2 slide deck (legacy teaching chapters merged and "
          "re-ordered onto the five exam domains); labs restructured one-folder-per-lab; exam "
          "registration and practice-exam guidance added.", COURSE["trainer"]),
+        ("v3", "18 Aug 2026", "Aligned to the v3 standard-format deck — condensed, "
+         "objective-by-objective (XK0-006 blueprint), full lab step coverage.", COURSE["trainer"]),
     ])
     prodoc.add_toc(doc)
 

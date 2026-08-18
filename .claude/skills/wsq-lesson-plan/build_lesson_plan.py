@@ -147,6 +147,11 @@ prodoc.add_version_control(doc, [
      "the start; CompTIA exam registration and practice-exam slides added at the end; labs restructured "
      "one-folder-per-lab; slide references updated to the v2 deck.",
      COURSE["trainer"]),
+    ("v3", "18 Aug 2026", "Deck condensed to the standard house slide format (525 slides): content "
+     "re-authored objective-by-objective (1.1–5.5) per the XK0-006 blueprint with key screenshots "
+     "retained; every lab given full step-by-step slide coverage under its exam objective; slide "
+     "references updated to the v3 deck.",
+     COURSE["trainer"]),
 ])
 prodoc.add_toc(doc)
 
@@ -173,7 +178,7 @@ H("Assessment", 1)
 for a in ["Written Assessment (WA) — Short-Answer Questions (SAQ), 1 hour, open book — aligned to the course slides.",
           "Practical Performance (PP) — hands-on Linux tasks, 1 hour, open book — aligned to the course labs.",
           "Format: Open Book — course slides, Learner Guide and approved materials only.",
-          "The final assessment is conducted on Day 2 from 4:00 pm (WA 4:00–5:00, PP 5:00–6:00).",
+          "The final assessment is conducted on Day 2 from 4:30 pm (WA 4:30–5:30, PP 5:30–6:30).",
           "A minimum of 75% attendance is required to be eligible for assessment and funding.",
           f"Courseware and the assessment are on the LMS — {COURSE['lms']}."]:
     bullet(a)

@@ -47,7 +47,7 @@ COURSE = dict(
     exam="XK0-006 V8",
     org="Tertiary Infotech Academy Pte Ltd",
     uen="201200696W",
-    version="v2",
+    version="v3",
     version_date="18 August 2026",
     trainer="Dr. Alfred Ang",
     days=2,
@@ -216,6 +216,50 @@ DOMAIN_CHAPTERS = {
     3: [8, 10, 12],
     4: [16, 17, 13, 15],
     5: [18, 19, 20, 21, 22],
+}
+
+# ---------------------------------------------------------------- exam objectives (XK0-006 V8)
+# Official per-objective summary — short name + one-line description. The deck follows
+# these objective-by-objective inside each domain.
+OBJ_INFO = {
+    "1.1": ("Linux basics", "Identify boot process steps, kernel, filesystems, and architectures."),
+    "1.2": ("Device management", "Manage kernel modules, hardware components, and device utilities."),
+    "1.3": ("Storage management", "Configure LVM, RAID, partitions, and mounted storage."),
+    "1.4": ("Network configuration", "Set up hosts, DNS, interfaces, and network tools."),
+    "1.5": ("Shell operations", "Use navigation, editing, redirection, and environment variables."),
+    "1.6": ("Backups and restores", "Perform archiving, compression, and data recovery."),
+    "1.7": ("Virtualization", "Deploy hypervisors, create VMs, and manage disk images."),
+    "2.1": ("Files & directories", "Control permissions, create links, and manage special files."),
+    "2.2": ("Account management", "Add, remove, and modify users and groups."),
+    "2.3": ("Process control", "Monitor states, adjust priorities, and schedule jobs."),
+    "2.4": ("Software management", "Install, update, or remove packages and repositories."),
+    "2.5": ("Systems management", "Start, stop, and review services, logs, and timers."),
+    "2.6": ("Containers", "Operate container runtimes, manage images, and create networks."),
+    "3.1": ("Auth & accounting", "Configure PAM, LDAP, Kerberos, and enable auditing."),
+    "3.2": ("Firewalls", "Set firewalls using iptables, nftables, UFW, and zone rules."),
+    "3.3": ("OS hardening", "Apply permissions, configure sudo, and secure remote access."),
+    "3.4": ("Account security", "Enforce password policies, restrict shells, and enable MFA."),
+    "3.5": ("Cryptography", "Encrypt files, use hashing, and manage certificates."),
+    "3.6": ("Compliance", "Verify integrity, run scans, and maintain standards."),
+    "4.1": ("Automation", "Automate tasks with Ansible, Puppet, and CI/CD tools."),
+    "4.2": ("Shell scripting", "Write and troubleshoot variables, functions, and logic flows."),
+    "4.3": ("Python basics", "Develop scripts using environments, packages, and data types."),
+    "4.4": ("Version control", "Manage code with Git workflows and tagging."),
+    "4.5": ("AI best practices", "Apply code generation and prompt engineering responsibly."),
+    "5.1": ("System monitoring", "Monitor health, logs, and event alerts."),
+    "5.2": ("Hardware/storage", "Diagnose boot, mount, and repair issues."),
+    "5.3": ("Networking", "Resolve firewall, routing, DNS, and connectivity problems."),
+    "5.4": ("Security", "Fix SELinux, permission, and vulnerability issues."),
+    "5.5": ("Performance", "Analyze CPU, memory, I/O, and optimize response times."),
+}
+
+# Which legacy chapter's condensed content teaches which objective.
+CHAPTER_OBJECTIVE = {
+    1: "1.1", 3: "1.3", 5: "1.4", 11: "1.4",
+    2: "2.1", 9: "2.2", 4: "2.3", 6: "2.4", 7: "2.4", 14: "2.6",
+    12: "3.1", 10: "3.2", 8: "3.3",
+    16: "4.1", 17: "4.1", 13: "4.2", 15: "4.4",
+    18: "5.2", 22: "5.2", 19: "5.3", 21: "5.4", 20: "5.5",
 }
 
 # Old-deck slides NOT carried over: the superseded admin block (1-16), the four
