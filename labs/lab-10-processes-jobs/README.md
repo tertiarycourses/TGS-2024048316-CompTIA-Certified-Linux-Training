@@ -109,12 +109,25 @@ killall sleep 2>/dev/null
 ## Step 7 — Scheduling with at and cron
 
 ```bash
-service atd start 2>/dev/null || systemctl start atd
-echo "date > /tmp/at-fired.txt" | at now + 1 minute
-atq
-( crontab -l 2>/dev/null; echo "* * * * * date >> /tmp/cron.log" ) | crontab -
-crontab -l
-ls /etc/anacrontab && head /etc/anacrontab
+//vi storage.sh 
+#!/bin/bash
+echo "=== Disk Usage Report - $(date '+%Y-%m-%d %H:%M:%S') ==="
+df -k -h | column -t
+echo "----------------------------------------"
+
+//crontab -e
+choose 1
+
+*/5 * * * * /root/storage.sh >> /var/log/disk_usage.log 2>&1
+
+cntl+x +Y
+
+//crontab -l
+
+#set execute persmisison to script to run 
+chmod +x storage.sh
+touch /var/log/disk_usage.log 2>&1
+
 ```
 
 `at` schedules a one-shot future job; `cron` runs recurring jobs via the five-field schedule (minute hour day month weekday). `anacron` runs jobs that may have been missed (good for laptops).

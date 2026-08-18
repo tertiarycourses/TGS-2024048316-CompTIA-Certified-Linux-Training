@@ -29,11 +29,11 @@ unset LABVAR
 mkdir -p /tmp/lab5 && cd /tmp/lab5
 pwd
 ls ./
-ls ../tmp
+ls ../../tmp
 ls /tmp/lab5
 ls -la ~/ | head
 cat ~/.bashrc 2>/dev/null | head -10 || echo "no .bashrc for root in this image"
-cat ~/.bash_profile 2>/dev/null || echo "no .bash_profile"
+#cat ~/.bash_profile 2>/dev/null || echo "no .bash_profile"
 cat /etc/profile | head
 ```
 
@@ -58,7 +58,30 @@ grep line <<<"line via here-string"
 ls /etc | head | tee dirlist.txt | wc -l
 cat dirlist.txt
 ```
-
+```bash
+root@ubuntu:/tmp/lab5$ ls -rlt    
+total 16
+-rw-r--r-- 1 root root    0 Jul  6 05:51 file.txt
+-rw-r--r-- 1 root root   44 Jul  6 06:06 out.txt
+-rw-r--r-- 1 root root  104 Jul  6 06:08 dirlist.txt
+drwxr-xr-x 2 root root 4096 Jul  6 06:09 test1
+drwxr-xr-x 2 root root 4096 Jul  6 06:09 test2
+root@ubuntu:/tmp/lab5$ 
+root@ubuntu:/tmp/lab5$ 
+root@ubuntu:/tmp/lab5$ 
+root@ubuntu:/tmp/lab5$ 
+root@ubuntu:/tmp/lab5$ ls -lrt |grep ^d
+drwxr-xr-x 2 root root 4096 Jul  6 06:09 test1
+drwxr-xr-x 2 root root 4096 Jul  6 06:09 test2
+root@ubuntu:/tmp/lab5$ 
+root@ubuntu:/tmp/lab5$ 
+root@ubuntu:/tmp/lab5$ 
+root@ubuntu:/tmp/lab5$ 
+root@ubuntu:/tmp/lab5$ ls -lrt |grep ^-
+-rw-r--r-- 1 root root    0 Jul  6 05:51 file.txt
+-rw-r--r-- 1 root root   44 Jul  6 06:06 out.txt
+-rw-r--r-- 1 root root  104 Jul  6 06:08 dirlist.txt
+```
 `>` truncates and writes, `>>` appends. `<` redirects stdin from a file. `<<EOF` is a here-doc, `<<<` is a here-string. `tee` writes stdout to both a file and the next stage of the pipeline.
 
 ---

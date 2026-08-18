@@ -33,9 +33,9 @@ ls -l run.sh /tmp -d .
 ```bash
 umask 027
 touch /srv/lab/newfile && ls -l /srv/lab/newfile
-chattr +i /etc/resolv.conf
-lsattr /etc/resolv.conf
-chattr -i /etc/resolv.conf
+chattr +i /etc/resolv.conf(# Do not use Symnolic link)
+lsattr /etc/resolv.conf(# Do not use Symnolic link)
+chattr -i /etc/resolv.conf(# Do not use Symnolic link)
 ```
 
 `umask 027` produces 640 files and 750 directories. `chattr +i` marks a file immutable so even root cannot modify it until the bit is cleared.

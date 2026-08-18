@@ -37,7 +37,8 @@ tar -cJvf src.tar.xz  src/ 2>&1 | tail -2
 ls -lh src.tar.*
 tar -tzf src.tar.gz | head -5
 mkdir -p restore && tar -xzvf src.tar.gz -C restore/ 2>&1 | tail -3
-diff -r src restore/src && echo "restore matches source"
+#diff -r src restore/src && echo "restore matches source"
+diff -r --exclude=os-release src restore/src
 ```
 
 Flags: `c` create, `x` extract, `t` list; `z`=gzip, `j`=bzip2, `J`=xz, `v` verbose, `f` file. xz wins on ratio; gzip wins on speed.
@@ -105,7 +106,9 @@ rsync -avz /lab6/src/ /lab6/mirror/ | tail -5
 echo "new" > /lab6/src/docs/new.txt
 rm /lab6/src/logs/log1.bin
 rsync -avz --delete /lab6/src/ /lab6/mirror/ | tail -8
-diff -r /lab6/src /lab6/mirror && echo "mirror in sync"
+#diff -r /lab6/src /lab6/mirror && echo "mirror in sync"
+diff -r --exclude=os-release /lab6/src /lab6/mirror
+
 ```
 
 Trailing slashes matter: `src/` copies the contents, not the directory itself. `--delete` removes files from the destination that no longer exist in the source — required for a true mirror.
